@@ -1,5 +1,5 @@
 import React from 'react';
-import { useTheme } from './hooks/useTheme';
+import { useTheme } from './hooks/useTheme.ts';
 import { Form } from './components/Form';
 import { ToastContainer } from './components/Toast';
 

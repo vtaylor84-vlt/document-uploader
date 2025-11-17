@@ -1,10 +1,10 @@
 import React, { useState, useMemo, useCallback } from 'react';
 import { LoadSubmission, SelectedFile } from '../types';
 import { useTheme } from '../hooks/useTheme';
-import { useFormValidation } from '../hooks/useFormValidation';
+import { useFormValidation } from '../hooks/useFormValidation.ts';
 import { useToast } from './Toast';
 import { COMPANY_OPTIONS, STATES_US } from '../constants';
-import { saveSubmissionToQueue } from '../services/queueService';
+import { saveSubmissionToQueue } from '../services/queueService.ts';
 
 import { InputField } from './InputField';
 import { SelectField } from './SelectField';

@@ -1,0 +1,5 @@
+[build]
+  # Use a compatible Node.js version
+  publish = "dist"
+  command = "npm run build"
+  environment = { NODE_VERSION = "18" }

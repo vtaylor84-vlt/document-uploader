@@ -2,4 +2,4 @@
   # Use a compatible Node.js version
   publish = "dist"
   command = "npm run build"
-  environment = { NODE_VERSION = "18" }
+  environment = { NODE_VERSION = "20" }

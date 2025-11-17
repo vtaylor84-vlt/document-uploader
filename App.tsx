@@ -1,7 +1,7 @@
 import React from 'react';
-import { useTheme } from './hooks/useTheme.ts';
-import { Form } from './components/Form';
-import { ToastContainer } from './components/Toast';
+import { useTheme } from './hooks/useTheme.ts'; // Corrected
+import { Form } from './components/Form.tsx'; // Corrected
+import { ToastContainer } from './components/Toast.tsx'; // Corrected
 
 const App: React.FC = () => {
     const { currentTheme, DynamicLogo, themeVars } = useTheme();
@@ -14,7 +14,7 @@ const App: React.FC = () => {
                 <div className="max-w-4xl mx-auto">
                     {currentTheme.name === 'QLM Driver Upload' ? (
                         <header className="text-center py-6">
-                            <h1 className="text-4xl font-orbitron font-bold text-white tracking-widest" 
+                            <h1 className="text-4xl font-orbitron font-bold text-white tracking-widest"
                                 style={{ textShadow: `0 0 15px var(--color-primary)` }}>
                                 {currentTheme.name}
                             </h1>

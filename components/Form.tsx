@@ -1,15 +1,15 @@
 import React, { useState, useMemo, useCallback } from 'react';
-import { LoadSubmission, SelectedFile } from '../types.ts'; // Corrected
-import { useTheme } from '../hooks/useTheme.ts'; // Corrected
-import { useFormValidation } from '../hooks/useFormValidation.ts'; // Corrected
-import { useToast } from './Toast.tsx'; // Corrected
-import { COMPANY_OPTIONS, STATES_US } from '../constants.ts'; // Corrected
-import { saveSubmissionToQueue } from '../services/queueService.ts'; // Corrected
+import { LoadSubmission, SelectedFile } from '../types.ts';
+import { useTheme } from '../hooks/useTheme.ts';
+import { useFormValidation } from '../hooks/useFormValidation.ts';
+import { useToast } from './Toast.tsx';
+import { COMPANY_OPTIONS, STATES_US } from '../constants.ts';
+import { saveSubmissionToQueue } from '../services/queueService.ts';
 
-import { InputField } from './InputField.tsx'; // Corrected
-import { SelectField } from './SelectField.tsx'; // Corrected
-import { FileUploadArea } from './FileUploadArea.tsx'; // Corrected
-import { GeminiAISection } from './GeminiAISection.tsx'; // Corrected
+import { InputField } from './InputField.tsx';
+import { SelectField } from './SelectField.tsx';
+import { FileUploadArea } from './FileUploadArea.tsx';
+import { GeminiAISection } from './GeminiAISection.tsx';
 
 
 // Initial state for the submission form

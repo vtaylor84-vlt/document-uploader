@@ -33,6 +33,10 @@ export const InputField: React.FC<InputFieldProps> = ({ label, id, value, theme,
                                 transition-all duration-300 ease-in-out
                                 border-b-2 border-b-transparent focus:border-b-4 focus:border-b-white/80
                                 `}
+                    style={{ 
+                        backgroundColor: '#171717', // Enforced dark background color
+                        color: '#E2E8F0', // Ensure text input remains visible
+                    }}
                 />
             </div>
         </div>

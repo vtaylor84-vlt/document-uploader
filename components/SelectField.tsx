@@ -32,6 +32,7 @@ export const SelectField: React.FC<SelectFieldProps> = ({ label, id, options, th
                                 transition-all duration-300 ease-in-out
                                 border-b-2 border-b-transparent focus:border-b-4 focus:border-b-white/80
                             `}
+                    style={{ backgroundColor: '#171717' }} // Enforced dark background color
                 >
                     <option value="" disabled className="bg-gray-800 text-gray-500">Select an option</option>
                     {options.map(option => (

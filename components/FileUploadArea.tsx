@@ -2,6 +2,7 @@ import React, { useRef, useState, useCallback } from 'react';
 import { SelectedFile, FileType, BolCategory } from '../types.ts';
 import { FilePreview } from './FilePreview.tsx'; // Assuming FilePreview exists and is correctly structured
 import { useToast } from './Toast.tsx'; // Assuming useToast exists and is correctly structured
+import { CameraIcon } from './icons/CameraIcon.tsx'; // Assuming CameraIcon is correctly imported
 
 interface FileUploadAreaProps {
     files: SelectedFile[];

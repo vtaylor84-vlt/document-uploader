@@ -11,7 +11,6 @@ interface SelectFieldProps extends SelectHTMLAttributes<HTMLSelectElement> {
     };
 }
 
-// Custom Select Field with Cyberpunk aesthetic
 export const SelectField: React.FC<SelectFieldProps> = ({ label, id, options, theme, ...props }) => {
     const textColor = theme?.text || 'text-white';
 
@@ -22,7 +21,7 @@ export const SelectField: React.FC<SelectFieldProps> = ({ label, id, options, th
             </label>
             <div className={`relative group transition-all duration-300 ease-in-out`}>
                 {/* Glowing border effect using pseudo-element */}
-                <div className={`absolute -inset-0.5 bg-gradient-to-r from-cyan-600 to-purple-600 rounded-lg blur opacity-0 group-focus-within:opacity-75 transition-opacity duration-300`}></div>
+                <div className={`absolute -inset-0.5 bg-gradient-to-r from-[--color-primary] to-[--color-secondary] rounded-lg blur opacity-0 group-focus-within:opacity-75 transition-opacity duration-300`}></div>
                 
                 <select
                     id={id}
@@ -33,10 +32,6 @@ export const SelectField: React.FC<SelectFieldProps> = ({ label, id, options, th
                                 transition-all duration-300 ease-in-out
                                 border-b-2 border-b-transparent focus:border-b-4 focus:border-b-white/80
                             `}
-                    style={{
-                        '--tw-gradient-from': `var(--color-primary)`,
-                        '--tw-gradient-to': `var(--color-secondary)`,
-                    } as React.CSSProperties}
                 >
                     <option value="" disabled className="bg-gray-800 text-gray-500">Select an option</option>
                     {options.map(option => (
@@ -44,7 +39,6 @@ export const SelectField: React.FC<SelectFieldProps> = ({ label, id, options, th
                     ))}
                 </select>
                 <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-400">
-                    {/* Down arrow icon */}
                     <svg className="h-4 w-4 fill-current" viewBox="0 0 20 20"><path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"></path></svg>
                 </div>
             </div>

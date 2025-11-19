@@ -11,11 +11,7 @@ interface InputFieldProps extends InputHTMLAttributes<HTMLInputElement> {
     };
 }
 
-// Custom Input Field with Cyberpunk aesthetic
 export const InputField: React.FC<InputFieldProps> = ({ label, id, value, theme, ...props }) => {
-    // Fallback theme colors (optional, but good for robustness)
-    const primaryColor = theme?.primary || 'cyan';
-    const secondaryColor = theme?.secondary || 'purple';
     const textColor = theme?.text || 'text-white';
 
     return (
@@ -25,7 +21,7 @@ export const InputField: React.FC<InputFieldProps> = ({ label, id, value, theme,
             </label>
             <div className={`relative group transition-all duration-300 ease-in-out focus-within:ring-1 focus-within:ring-transparent`}>
                 {/* Glowing border effect using pseudo-element */}
-                <div className={`absolute -inset-0.5 bg-gradient-to-r from-cyan-600 to-purple-600 rounded-lg blur opacity-0 group-focus-within:opacity-75 transition-opacity duration-300`}></div>
+                <div className={`absolute -inset-0.5 bg-gradient-to-r from-[--color-primary] to-[--color-secondary] rounded-lg blur opacity-0 group-focus-within:opacity-75 transition-opacity duration-300`}></div>
                 
                 <input
                     id={id}
@@ -37,11 +33,6 @@ export const InputField: React.FC<InputFieldProps> = ({ label, id, value, theme,
                                 transition-all duration-300 ease-in-out
                                 border-b-2 border-b-transparent focus:border-b-4 focus:border-b-white/80
                                 `}
-                    style={{
-                        // Apply dynamic gradient based on theme variables for the glow
-                        '--tw-gradient-from': `var(--color-primary)`,
-                        '--tw-gradient-to': `var(--color-secondary)`,
-                    } as React.CSSProperties}
                 />
             </div>
         </div>

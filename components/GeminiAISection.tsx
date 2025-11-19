@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { SelectedFile } from '../types';
-import { useToast } from './Toast';
-import { generateDescription } from '../services/geminiService';
+import { SelectedFile } from '../types.ts';
+import { useToast } from './Toast.tsx';
+import { generateDescription } from '../services/geminiService.ts';
 
 interface GeminiAISectionProps {
     freightFiles: SelectedFile[];

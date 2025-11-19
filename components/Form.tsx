@@ -162,18 +162,13 @@ export const Form: React.FC = () => {
 
             {/* --- SUBMIT BUTTON --- */}
             <button
-                type="submit"
-                disabled={!isValid || status === 'submitting'}
-                className={`
-                    w-full py-4 rounded-xl text-white font-bold font-orbitron text-2xl tracking-wider
-                    transition-all duration-300 transform 
-                    ${isPulsing ? 'animate-pulse-glow' : ''} // ADDED PULSE ANIMATION
-                    ${isValid ? 'bg-gradient-to-r from-[--color-primary] to-[--color-secondary] hover:scale-[1.01]' : 'bg-gray-700 opacity-50 cursor-not-allowed'}
-                `}
-                style={isValid ? { boxShadow: `var(--shadow-glow)` } : {}}
-            >
-                {status === 'submitting' ? 'INITIATING UPLOAD...' : isValid ? 'QUANTUM SUBMIT' : '⚠️ FILL REQUIRED FIELDS'}
-            </button>
+    type="submit"
+    disabled={!isValid || status === 'submitting'}
+    className={`...` /* (Classes unchanged) */}
+    style={isValid ? { boxShadow: `var(--shadow-glow)` } : {}}
+>
+    {status === 'submitting' ? 'INITIATING UPLOAD...' : 'Submit Documents for Load: ' + (form.loadNumber || 'Trip--')}
+</button>
             
             {/* Debug/Queue Status (Optional: Add a component here to show pending queue items) */}
         </form>

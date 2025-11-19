@@ -1,9 +1,7 @@
 import React, { useRef, useState, useCallback } from 'react';
-import { SelectedFile, FileType, BolCategory } from '../types';
-import { FilePreview } from './FilePreview';
-import { useToast } from './Toast';
-// Drag-to-reorder requires a small utility. For copy-paste, we'll use a simple array drag handler.
-import { reorder } from '../utils/reorder'; 
+import { SelectedFile, FileType, BolCategory } from '../types.ts';
+import { FilePreview } from './FilePreview.tsx'; // Assuming FilePreview exists and is correctly structured
+import { useToast } from './Toast.tsx'; // Assuming useToast exists and is correctly structured
 
 interface FileUploadAreaProps {
     files: SelectedFile[];
@@ -30,6 +28,14 @@ const areFilesEqual = (file1: File, file2: File): boolean => {
            file1.size === file2.size && 
            file1.lastModified === file2.lastModified;
 };
+
+// Simple reorder utility
+function reorder<T>(list: T[], startIndex: number, endIndex: number): T[] {
+    const result = Array.from(list);
+    const [removed] = result.splice(startIndex, 1);
+    result.splice(endIndex, 0, removed);
+    return result;
+}
 
 export const FileUploadArea: React.FC<FileUploadAreaProps> = ({ files, setFiles, fileType, maxFiles = 100 }) => {
     const fileInputRef = useRef<HTMLInputElement>(null);
@@ -114,14 +120,6 @@ export const FileUploadArea: React.FC<FileUploadAreaProps> = ({ files, setFiles,
         setDraggedItem(null);
         setDragOverIndex(null);
     };
-
-    // --- Utility for reorder logic (would be in utils/reorder.ts) ---
-    function reorder<T>(list: T[], startIndex: number, endIndex: number): T[] {
-        const result = Array.from(list);
-        const [removed] = result.splice(startIndex, 1);
-        result.splice(endIndex, 0, removed);
-        return result;
-    }
     // -----------------------------------------------------------------
 
     const acceptedFileTypes = fileType === 'BOL' 

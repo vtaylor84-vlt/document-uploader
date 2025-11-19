@@ -9,22 +9,75 @@
     <link rel="stylesheet" href="/src/style.css">
     
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Inter:wght@400;600&display=swap" rel="stylesheet">
-    <style>
-        /* Apply base dark theme and fonts */
-        body {
-            background-color: #0f172a; /* Slate-900 equivalent */
-            color: #e2e8f0; /* Slate-200 equivalent */
-            font-family: 'Inter', sans-serif;
-        }
-        h1, h2, h3 {
-            font-family: 'Orbitron', sans-serif;
-        }
-        /* Custom scrollbar for cyberpunk feel */
-        ::-webkit-scrollbar { width: 8px; }
-        ::-webkit-scrollbar-track { background: #0f172a; }
-        ::-webkit-scrollbar-thumb { background: #475569; border-radius: 4px; }
-        ::-webkit-scrollbar-thumb:hover { background: #64748b; }
-    </style>
+ <style>
+  body {
+    font-family: 'Inter', sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    background-color: #000;
+    overflow-x: hidden;
+  }
+  
+  /* --- Animated Grid Background --- */
+  body::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: 
+      linear-gradient(to right, rgba(0, 255, 255, 0.1) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(0, 255, 255, 0.1) 1px, transparent 1px);
+    background-size: 40px 40px;
+    animation: grid-scroll 30s linear infinite;
+    z-index: 0;
+    opacity: 0.5;
+  }
+
+  .font-orbitron {
+    font-family: 'Orbitron', sans-serif;
+  }
+  
+  /* --- Text Glow Utilities --- */
+  .glowing-text-cyan { text-shadow: 0 0 3px rgba(0, 255, 255, 0.8), 0 0 8px rgba(0, 255, 255, 0.6), 0 0 15px rgba(0, 255, 255, 0.4); }
+  .glowing-text-green { text-shadow: 0 0 3px rgba(74, 222, 128, 0.8), 0 0 8px rgba(74, 222, 128, 0.6), 0 0 15px rgba(74, 222, 128, 0.4); }
+  .glowing-text-sky { text-shadow: 0 0 3px rgba(56, 189, 248, 0.8), 0 0 8px rgba(56, 189, 248, 0.6), 0 0 15px rgba(56, 189, 248, 0.4); }
+
+  /* --- Form Glow Utilities --- */
+  .form-glow-cyan::before { box-shadow: 0 0 15px rgba(0, 255, 255, 0.3), 0 0 30px rgba(0, 255, 255, 0.2); }
+  .form-glow-green::before { box-shadow: 0 0 15px rgba(74, 222, 128, 0.3), 0 0 30px rgba(74, 222, 128, 0.2); }
+  .form-glow-sky::before { box-shadow: 0 0 15px rgba(56, 189, 248, 0.3), 0 0 30px rgba(56, 189, 248, 0.2); }
+  
+  .form-container {
+    position: relative;
+    z-index: 10;
+  }
+  .form-container::before {
+    content: '';
+    position: absolute;
+    inset: -2px;
+    border-radius: 0.75rem;
+    z-index: -1;
+    transition: box-shadow 0.3s ease-in-out;
+  }
+  
+  /* --- Keyframe Animations --- */
+  @keyframes grid-scroll {
+    from { background-position: 0 0; }
+    to { background-position: -120px -120px; }
+  }
+  
+  @keyframes pulse {
+    50% {
+      opacity: 0.85;
+      transform: scale(1.01);
+    }
+  }
+
+  .animate-pulse-glow {
+    animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }</style>
     <script type="importmap">
         {
             "imports": {

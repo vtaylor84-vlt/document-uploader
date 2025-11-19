@@ -31,6 +31,7 @@ const initialFormState: LoadSubmission = {
 export const Form: React.FC = () => {
     const { company, setCompany, currentTheme } = useTheme();
     const showToast = useToast();
+    const [status, setStatus] = useState<'idle' | 'submitting'>('idle'); // Added status state
     
     // Form and File State
     const [form, setForm] = useState<Omit<LoadSubmission, 'files' | 'timestamp' | 'submissionId'>>({
@@ -66,6 +67,8 @@ export const Form: React.FC = () => {
             return;
         }
         
+        setStatus('submitting'); // Set status to submitting
+        
         const submissionId = crypto.randomUUID();
         const finalSubmission: LoadSubmission = {
             ...form,
@@ -89,12 +92,24 @@ export const Form: React.FC = () => {
         } catch (error) {
             console.error("Failed to save to queue:", error);
             showToast("Critical Error: Could not save submission locally.", 'error');
+        } finally {
+            setStatus('idle');
         }
 
     }, [form, allFiles, isValid, company, showToast]);
+    
+    // Determine the theme glow class based on the selected company
+    const formGlowClass = currentTheme.name === 'Greenleaf Xpress' ? 'form-glow-green' : 
+                         currentTheme.name === 'BST Expedite' ? 'form-glow-sky' : 
+                         'form-glow-cyan';
+
+    const isPulsing = isValid && status !== 'submitting';
 
     return (
-        <form onSubmit={handleSubmit} className="p-6 space-y-8 max-w-4xl mx-auto">
+        <form 
+            onSubmit={handleSubmit} 
+            className={`relative form-container space-y-8 p-6 bg-black/60 rounded-xl backdrop-blur-sm ${formGlowClass}`} // ADDED GLOW CLASSES
+        >
             
             {/* --- CORE IDENTIFICATION --- */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 p-4 border-2 border-slate-700 rounded-lg bg-slate-800 shadow-xl">
@@ -120,7 +135,7 @@ export const Form: React.FC = () => {
             </div>
             
             {/* --- LOAD IDENTIFICATION --- */}
-            <h2 className="text-2xl font-orbitron text-[--color-primary] pt-4">Load Data</h2>
+            <h2 className={`text-2xl font-orbitron text-[--color-primary] pt-4 ${currentTheme.name === 'Greenleaf Xpress' ? 'glowing-text-green' : currentTheme.name === 'BST Expedite' ? 'glowing-text-sky' : 'glowing-text-cyan'}`}>Load Data</h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                 <InputField label="Load #" id="loadNumber" value={form.loadNumber} onChange={handleChange} />
                 <InputField label="BOL #" id="bolNumber" value={form.bolNumber} onChange={handleChange} />
@@ -134,7 +149,7 @@ export const Form: React.FC = () => {
             </div>
             
             {/* --- DOCUMENT UPLOADS --- */}
-            <h2 className="text-2xl font-orbitron text-[--color-primary] pt-4">Documents & Freight</h2>
+            <h2 className={`text-2xl font-orbitron text-[--color-primary] pt-4 ${currentTheme.name === 'Greenleaf Xpress' ? 'glowing-text-green' : currentTheme.name === 'BST Expedite' ? 'glowing-text-sky' : 'glowing-text-cyan'}`}>Documents & Freight</h2>
             <FileUploadArea files={bolFiles} setFiles={setBolFiles} fileType="BOL" />
             <FileUploadArea files={freightFiles} setFiles={setFreightFiles} fileType="FREIGHT" />
 
@@ -148,15 +163,16 @@ export const Form: React.FC = () => {
             {/* --- SUBMIT BUTTON --- */}
             <button
                 type="submit"
-                disabled={!isValid}
+                disabled={!isValid || status === 'submitting'}
                 className={`
                     w-full py-4 rounded-xl text-white font-bold font-orbitron text-2xl tracking-wider
                     transition-all duration-300 transform 
+                    ${isPulsing ? 'animate-pulse-glow' : ''} // ADDED PULSE ANIMATION
                     ${isValid ? 'bg-gradient-to-r from-[--color-primary] to-[--color-secondary] hover:scale-[1.01]' : 'bg-gray-700 opacity-50 cursor-not-allowed'}
                 `}
                 style={isValid ? { boxShadow: `var(--shadow-glow)` } : {}}
             >
-                {isValid ? 'QUANTUM SUBMIT' : '⚠️ FILL REQUIRED FIELDS'}
+                {status === 'submitting' ? 'INITIATING UPLOAD...' : isValid ? 'QUANTUM SUBMIT' : '⚠️ FILL REQUIRED FIELDS'}
             </button>
             
             {/* Debug/Queue Status (Optional: Add a component here to show pending queue items) */}

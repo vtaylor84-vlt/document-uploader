@@ -66,11 +66,12 @@ export const GeminiAISection: React.FC<GeminiAISectionProps> = ({ freightFiles, 
                 rows={4}
                 className="
                     w-full p-3 border-2 rounded-lg 
-                    bg-slate-900 text-white border-slate-700 
+                    bg-black/80 border border-gray-700 
                     transition-all duration-200 focus:outline-none 
                     focus:border-[--color-secondary] focus:shadow-[0_0_10px_var(--color-secondary)] 
-                    font-inter text-base resize-none
+                    font-inter text-base resize-none text-white
                 "
+                style={{ backgroundColor: '#171717' }}
             />
         </div>
     );

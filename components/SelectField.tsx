@@ -12,7 +12,7 @@ interface SelectFieldProps extends SelectHTMLAttributes<HTMLSelectElement> {
 }
 
 export const SelectField: React.FC<SelectFieldProps> = ({ label, id, options, theme, ...props }) => {
-    const textColor = theme?.text || 'text-white';
+    const textColor = theme?.text || 'text-gray-200';
 
     return (
         <div className="flex flex-col space-y-1">
@@ -20,7 +20,7 @@ export const SelectField: React.FC<SelectFieldProps> = ({ label, id, options, th
                 {label}
             </label>
             <div className={`relative group transition-all duration-300 ease-in-out`}>
-                {/* Glowing border effect using pseudo-element */}
+                {/* Glowing border effect */}
                 <div className={`absolute -inset-0.5 bg-gradient-to-r from-[--color-primary] to-[--color-secondary] rounded-lg blur opacity-0 group-focus-within:opacity-75 transition-opacity duration-300`}></div>
                 
                 <select

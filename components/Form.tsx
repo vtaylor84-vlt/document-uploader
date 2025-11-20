@@ -33,10 +33,10 @@ export const Form: React.FC = () => {
     // Form and File State
     const [form, setForm] = useState<Omit<LoadSubmission, 'files' | 'timestamp' | 'submissionId'>>({
         ...initialFormState,
-        company: company, // Initialize company from theme
+        company: company,
     });
-    const [bolFiles, setBolFiles] = useState<SelectedFile[]>([] as SelectedFile[]);
-    const [freightFiles, setFreightFiles] = useState<SelectedFile[]>([] as SelectedFile[]);
+    const [bolFiles, setBolFiles] = useState<SelectedFile[]>([]);
+    const [freightFiles, setFreightFiles] = useState<SelectedFile[]>([]);
     
     // Combine files for validation/submission
     const allFiles = useMemo(() => [...bolFiles, ...freightFiles], [bolFiles, freightFiles]);
@@ -80,7 +80,7 @@ export const Form: React.FC = () => {
             await saveSubmissionToQueue(finalSubmission);
             showToast(`Load ${form.loadNumber || 'N/A'} saved to queue! Uploading in background.`, 'success');
 
-            // Reset Form (excluding company selection which is managed by theme)
+            // Reset Form
             setForm(initialFormState);
             setBolFiles([]);
             setFreightFiles([]);

@@ -1,107 +1,98 @@
-import React, { useRef, useState, useCallback } from 'react';
-import { SelectedFile, FileType, BolCategory } from '../types.ts';
-import { FilePreview } from './FilePreview.tsx';
-import { useToast } from './Toast.tsx'; 
-import { CameraIcon } from './icons/CameraIcon.tsx'; 
-// Assuming FilePreview and CameraIcon are now correctly created/linked
+import React, { useRef } from 'react';
+import type { UploadedFile } from '../types';
+import { FileThumbnail } from './FileThumbnail';
+import { CameraIcon } from './icons/CameraIcon'; // CORRECTED IMPORT
+import { FolderIcon } from './icons/FolderIcon'; // CORRECTED IMPORT
 
 interface FileUploadAreaProps {
-    files: SelectedFile[];
-    setFiles: (files: SelectedFile[]) => void;
-    fileType: FileType;
-    maxFiles?: number;
-    theme?: { text: string; primary: string; secondary: string; } // Added Theme
+  id: 'bolFiles' | 'freightFiles';
+  files: UploadedFile[];
+  onFileChange: (e: React.ChangeEvent<HTMLInputElement>, fileType: 'bolFiles' | 'freightFiles') => void;
+  onRemoveFile: (fileId: string, fileType: 'bolFiles' | 'freightFiles') => void;
+  onFileReorder: (draggedId: string, targetId: string, fileType: 'bolFiles' | 'freightFiles') => void;
+  accept: string;
 }
 
-const fileToSelectedFile = (file: File, fileType: FileType, category?: BolCategory): SelectedFile => {
-    return {
-        id: crypto.randomUUID(),
-        file: file,
-        type: fileType,
-        category: category,
-        previewUrl: file.type.startsWith('image/') || file.type.startsWith('video/') 
-            ? URL.createObjectURL(file) 
-            : '',
-    };
-};
+export const FileUploadArea: React.FC<FileUploadAreaProps> = ({
+  id,
+  files,
+  onFileChange,
+  onRemoveFile,
+  onFileReorder,
+  accept,
+}) => {
+  const dragId = useRef<string | null>(null);
+  
+  const handleDragStart = (id: string) => {
+    dragId.current = id;
+  };
 
-const areFilesEqual = (file1: File, file2: File): boolean => {
-    return file1.name === file2.name && 
-           file1.size === file2.size && 
-           file1.lastModified === file2.lastModified;
-};
+  const handleDrop = (targetId: string) => {
+    if (dragId.current && dragId.current !== targetId) {
+      onFileReorder(dragId.current, targetId, id);
+    }
+    dragId.current = null;
+  };
+  
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const cameraInputRef = useRef<HTMLInputElement>(null);
 
-function reorder<T>(list: T[], startIndex: number, endIndex: number): T[] {
-    const result = Array.from(list);
-    const [removed] = result.splice(startIndex, 1);
-    result.splice(endIndex, 0, removed);
-    return result;
-}
+  const triggerFileInput = () => fileInputRef.current?.click();
+  const triggerCameraInput = () => cameraInputRef.current?.click();
 
-export const FileUploadArea: React.FC<FileUploadAreaProps> = ({ files, setFiles, fileType, maxFiles = 100, theme }) => {
-    const fileInputRef = useRef<HTMLInputElement>(null);
-    const cameraInputRef = useRef<HTMLInputElement>(null);
-    const showToast = useToast();
-    const [isDraggingOver, setIsDraggingOver] = useState(false);
-    
-    // Theme colors for interpolation
-    const primaryColorClass = theme?.primary || 'cyan';
+  return (
+    <div className="space-y-4">
+      {/* Buttons: Side-by-side file and camera inputs */}
+      <div className="grid grid-cols-2 gap-px bg-gray-700 border border-gray-700">
+        {/* Hidden File Input */}
+        <input 
+            ref={fileInputRef}
+            id={`${id}-file`}
+            name={`${id}-file`} 
+            type="file" 
+            className="sr-only" 
+            multiple 
+            accept={accept}
+            onChange={(e) => onFileChange(e, id)} 
+        />
+        {/* Hidden Camera Input */}
+        <input 
+            ref={cameraInputRef}
+            id={`${id}-camera`}
+            name={`${id}-camera`}
+            type="file" 
+            className="sr-only" 
+            multiple 
+            accept="image/*"
+            capture="environment"
+            onChange={(e) => onFileChange(e, id)} 
+        />
 
-    const handleFiles = useCallback((newFiles: FileList | null) => {
-        if (!newFiles) return;
-        // ... (File handling logic remains the same)
-    }, [files, setFiles, fileType, maxFiles, showToast]);
+        <button type="button" onClick={triggerFileInput} className="bg-gray-200 text-black p-2 flex items-center justify-center space-x-2 hover:bg-white transition-colors">
+            <FolderIcon className="w-5 h-5" />
+            <span className="font-semibold">Select Files</span>
+        </button>
+        <button type="button" onClick={triggerCameraInput} className="bg-gray-200 text-black p-2 flex items-center justify-center space-x-2 hover:bg-white transition-colors">
+            <CameraIcon className="w-5 h-5" />
+            <span className="font-semibold">Use Camera</span>
+        </button>
 
-    const acceptedFileTypes = fileType === 'BOL' 
-        ? 'image/*,application/pdf' 
-        : 'image/*,video/*';
-
-    return (
-        <div className="space-y-4">
-            <div 
-                className={`relative mt-1 flex justify-center p-8 border border-cyan-500/30 rounded-md transition-all duration-300
-                            bg-black/60 cursor-pointer group
-                            ${isDraggingOver ? `border-cyan-500 shadow-[0_0_15px_rgba(56,189,248,0.5)] bg-black/70 scale-[1.01]` : `hover:border-cyan-500/50`}`}
-                onDragEnter={() => setIsDraggingOver(true)}
-                onDragLeave={() => setIsDraggingOver(false)}
-                onDragOver={(e) => e.preventDefault()}
-                onDrop={(e) => { setIsDraggingOver(false); handleFiles(e.dataTransfer.files); e.preventDefault(); }}
-                onClick={() => fileInputRef.current?.click()} // Click anywhere in the box
-            >
-                <div className="space-y-2 text-center">
-                    <CameraIcon className={`mx-auto h-12 w-12 text-gray-500 transition-colors group-hover:text-cyan-400`} />
-                    <p className="text-sm font-medium text-white group-hover:text-cyan-400">
-                        Tap to open camera or upload files
-                    </p>
-                    <p className="text-xs text-gray-500">Drag & drop is also supported</p>
-                </div>
-                
-                {/* Hidden File and Camera Inputs */}
-                <input
-                    ref={fileInputRef}
-                    type="file"
-                    multiple
-                    accept={acceptedFileTypes}
-                    onChange={(e) => { handleFiles(e.target.files); e.target.value = ''; }}
-                    className="hidden"
-                />
-                <input
-                    ref={cameraInputRef}
-                    type="file"
-                    multiple
-                    accept={acceptedFileTypes}
-                    capture="environment"
-                    onChange={(e) => { handleFiles(e.target.files); e.target.value = ''; }}
-                    className="hidden"
-                />
-            </div>
-
-            {/* File Previews (Reorder Grid) */}
-            {files.length > 0 && (
-                <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-4 pt-4">
-                    {/* ... (Preview logic would go here if not removed for simplification) */}
-                </div>
-            )}
+      </div>
+      
+      {/* File Thumbnails Display */}
+      {files.length > 0 && (
+        <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-4 pt-2">
+          {files.map((file) => (
+            <FileThumbnail
+              key={file.id}
+              fileWrapper={file}
+              onRemove={() => onRemoveFile(file.id, id)}
+              onDragStart={() => handleDragStart(file.id)}
+              onDrop={() => handleDrop(file.id)}
+            />
+          ))}
         </div>
-    );
+      )}
+    </div>
+  );
 };

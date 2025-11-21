@@ -1,8 +1,8 @@
 import React, { useRef } from 'react';
 import type { UploadedFile } from '../types';
 import { FileThumbnail } from './FileThumbnail';
-import { CameraIcon } from './icons/CameraIcon'; // CORRECTED IMPORT
-import { FolderIcon } from './icons/FolderIcon'; // CORRECTED IMPORT
+import { CameraIcon } from './icons/CameraIcon.tsx'; // **FIXED: Explicit .tsx extension**
+import { FolderIcon } from './icons/FolderIcon.tsx'; // **FIXED: Explicit .tsx extension**
 
 interface FileUploadAreaProps {
   id: 'bolFiles' | 'freightFiles';

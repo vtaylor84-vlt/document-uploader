@@ -6,13 +6,13 @@ import { useToast } from './Toast.tsx';
 import { COMPANY_OPTIONS, STATES_US } from '../constants.ts';
 import { saveSubmissionToQueue } from '../services/queueService.ts';
 
-import { InputField } from './InputField.tsx';
-import { SelectField } from './SelectField.tsx';
-import { FileUploadArea } from './FileUploadArea.tsx';
-import { GeminiAISection } from './GeminiAISection.tsx';
+import { InputField } from './InputField.tsx'; // Will be used for text inputs
+import { SelectField } from './SelectField.tsx'; // Will be used for dropdowns
+import { FileUploadArea } from './FileUploadArea.tsx'; // Will be updated to match visual style
+// import { GeminiAISection } from './GeminiAISection.tsx'; // REMOVED: Not in final visual spec
 
 
-// Initial state for the submission form
+// Initial state structure remains the same
 const initialFormState: Omit<LoadSubmission, 'files' | 'timestamp' | 'submissionId'> = {
     company: 'default',
     driverName: '',
@@ -21,8 +21,9 @@ const initialFormState: Omit<LoadSubmission, 'files' | 'timestamp' | 'submission
     pickupCity: '',
     pickupState: '',
     deliveryCity: '',
-    deliveryState: '',
+    delState: '',
     description: '',
+    bolDocType: 'Pick Up' // Keep as default internal state
 };
 
 export const Form: React.FC = () => {
@@ -38,10 +39,7 @@ export const Form: React.FC = () => {
     const [bolFiles, setBolFiles] = useState<SelectedFile[]>([]);
     const [freightFiles, setFreightFiles] = useState<SelectedFile[]>([]);
     
-    // Combine files for validation/submission
     const allFiles = useMemo(() => [...bolFiles, ...freightFiles], [bolFiles, freightFiles]);
-
-    // Validation Hook
     const { isValid } = useFormValidation({ ...form, files: allFiles, timestamp: 0, submissionId: '' }, allFiles);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
@@ -77,10 +75,11 @@ export const Form: React.FC = () => {
         };
 
         try {
+            // Note: The logic here remains simulation (save to queue)
             await saveSubmissionToQueue(finalSubmission);
+
             showToast(`Load ${form.loadNumber || 'N/A'} saved to queue! Uploading in background.`, 'success');
 
-            // Reset Form
             setForm(initialFormState);
             setBolFiles([]);
             setFreightFiles([]);
@@ -93,81 +92,100 @@ export const Form: React.FC = () => {
 
     }, [form, allFiles, isValid, company, showToast]);
     
-    // Determine the theme glow class based on the selected company
+    // Theme classes for the container glow
     const formGlowClass = currentTheme.name === 'Greenleaf Xpress' ? 'form-glow-green' : 
                          currentTheme.name === 'BST Expedite' ? 'form-glow-sky' : 
                          'form-glow-cyan';
 
     const isPulsing = isValid && status !== 'submitting';
+    const THEME_PROPS = { primary: currentTheme.palette.primary, secondary: currentTheme.palette.secondary, text: currentTheme.glowingText };
 
     return (
+        // Main Form Container: Glassmorphism and Dynamic Glow
         <form 
             onSubmit={handleSubmit} 
             className={`relative form-container space-y-8 p-6 bg-black/60 rounded-xl backdrop-blur-sm ${formGlowClass}`}
         >
             
-            {/* --- CORE IDENTIFICATION --- */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 p-4 border-2 border-slate-700 rounded-lg bg-slate-800 shadow-xl">
+            {/* Company & Driver Section (2 columns) */}
+            <div className="grid grid-cols-2 gap-4">
                 <SelectField
-                    label="Company (REQUIRED)"
+                    label="Company" // Label simplified for visual clarity
                     id="company"
                     value={company}
                     options={COMPANY_OPTIONS}
                     onChange={handleChange}
                     required
+                    theme={THEME_PROPS}
                 />
                 <InputField
-                    label="Driver Name (REQUIRED)"
+                    label="Driver's Name"
                     id="driverName"
                     value={form.driverName}
                     onChange={handleChange}
                     required
                     placeholder="e.g., John Doe"
+                    theme={THEME_PROPS}
                 />
             </div>
-            
-            {/* --- LOAD IDENTIFICATION --- */}
-            <h2 className={`text-2xl font-orbitron pt-4 ${currentTheme.glowingText}`}>Load Data</h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                <InputField label="Load #" id="loadNumber" value={form.loadNumber} onChange={handleChange} placeholder="e.g., 123456" />
-                <InputField label="BOL #" id="bolNumber" value={form.bolNumber} onChange={handleChange} placeholder="e.g., 7891011" />
+
+            {/* Load Identifiers (2 columns) */}
+            <div className="grid grid-cols-2 gap-4">
+                <InputField label="Load #" id="loadNumber" value={form.loadNumber} onChange={handleChange} placeholder="e.g., 123456" theme={THEME_PROPS} />
+                <InputField label="BOL #" id="bolNumber" value={form.bolNumber} onChange={handleChange} placeholder="e.g., 7891011" theme={THEME_PROPS} />
             </div>
 
-            <div className="grid grid-cols-2 gap-4 sm:grid-cols-4 sm:gap-6">
-                <InputField label="Pickup City" id="pickupCity" value={form.pickupCity} onChange={handleChange} placeholder="City" />
-                <SelectField label="Pickup State" id="pickupState" value={form.pickupState} options={STATES_US} onChange={handleChange} placeholder="State" />
-                <InputField label="Delivery City" id="deliveryCity" value={form.deliveryCity} onChange={handleChange} placeholder="City" />
-                <SelectField label="Delivery State" id="deliveryState" value={form.deliveryState} options={STATES_US} onChange={handleChange} placeholder="State" />
+            {/* Trip Cities/States (4 columns, stacked 2x2) */}
+            <div className="grid grid-cols-2 gap-4">
+                <InputField label="Pickup City/State" id="pickupCity" value={form.puCity} onChange={handleChange} placeholder="City" theme={THEME_PROPS} />
+                <SelectField label="Pickup State" id="puState" value={form.puState} options={STATES_US} onChange={handleChange} placeholder="State" theme={THEME_PROPS} />
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+                <InputField label="Delivery City/State" id="deliveryCity" value={form.delCity} onChange={handleChange} placeholder="City" theme={THEME_PROPS} />
+                <SelectField label="Delivery State" id="delState" value={form.delState} options={STATES_US} onChange={handleChange} placeholder="State" theme={THEME_PROPS} />
+            </div>
+
+            {/* BOL Photos / PDFs */}
+            <div className="space-y-3 pt-4">
+                <div className="flex items-center space-x-4">
+                     <h3 className={`text-lg font-bold text-white`}>BOL Photos/PDFs</h3>
+                     <SelectField
+                        id="bolDocType"
+                        label="BOL Type" // SR-ONLY label; visual label is the h3 above
+                        srOnlyLabel="Select Type"
+                        value={form.bolDocType}
+                        options={['Pick Up', 'Delivery']}
+                        onChange={handleChange}
+                        theme={THEME_PROPS}
+                    />
+                </div>
+                
+                <FileUploadArea files={bolFiles} setFiles={setBolFiles} fileType="BOL" theme={THEME_PROPS} />
+            </div>
+
+            {/* Freight Photos / Videos */}
+            <div className="space-y-3 pt-4">
+                <h3 className={`text-lg font-bold text-white`}>Freight Photos/Videos</h3>
+                <FileUploadArea files={freightFiles} setFiles={setFreightFiles} fileType="FREIGHT" theme={THEME_PROPS} />
             </div>
             
-            {/* --- DOCUMENT UPLOADS --- */}
-            <h2 className={`text-2xl font-orbitron pt-4 ${currentTheme.glowingText}`}>Documents & Freight</h2>
-            <FileUploadArea files={bolFiles} setFiles={setBolFiles} fileType="BOL" />
-            <FileUploadArea files={freightFiles} setFiles={setFreightFiles} fileType="FREIGHT" />
+            {/* AI Cargo Analysis Section - REMAINS HIDDEN AS PER VISUAL */}
+            {/* Note: If you want to reactivate it, uncomment the GeminiAISection import and place it here */}
 
-            {/* --- AI DESCRIPTION --- */}
-            <GeminiAISection
-                freightFiles={freightFiles}
-                description={form.description}
-                setDescription={(desc) => setForm(prev => ({ ...prev, description: desc }))}
-            />
-
-            {/* --- SUBMIT BUTTON --- */}
+            {/* SUBMIT BUTTON (Matches image aesthetic) */}
             <button
                 type="submit"
                 disabled={!isValid || status === 'submitting'}
                 className={`
-                    w-full py-4 rounded-xl text-white font-bold font-orbitron text-2xl tracking-wider
+                    w-full py-4 rounded-xl text-white font-bold text-lg tracking-wider
                     transition-all duration-300 transform 
                     ${isPulsing ? 'animate-pulse-glow' : ''}
                     ${isValid ? 'bg-gradient-to-r from-[--color-primary] to-[--color-secondary] hover:scale-[1.01]' : 'bg-gray-700 opacity-50 cursor-not-allowed'}
                 `}
                 style={isValid ? { boxShadow: `var(--shadow-glow)` } : {}}
             >
-                {status === 'submitting' ? 'INITIATING UPLOAD...' : 'Submit Documents for Load: ' + (form.loadNumber || 'Trip--')}
+                {status === 'submitting' ? 'INITIATING UPLOAD...' : `Complete Required Fields`}
             </button>
-            
-            {/* Debug/Queue Status (Optional: Add a component here to show pending queue items) */}
         </form>
     );
 };

@@ -12,8 +12,6 @@ interface InputFieldProps extends InputHTMLAttributes<HTMLInputElement> {
 }
 
 export const InputField: React.FC<InputFieldProps> = ({ label, id, value, theme, ...props }) => {
-    // If theme prop is not passed, we rely on the CSS variables set in App.tsx
-    // but we still keep a fallback text color class.
     const textColor = theme?.text || 'text-gray-200';
 
     return (
@@ -21,9 +19,9 @@ export const InputField: React.FC<InputFieldProps> = ({ label, id, value, theme,
             <label htmlFor={id} className={`text-sm font-inter font-semibold ${textColor}`}>
                 {label}
             </label>
-            <div className={`relative group transition-all duration-300 ease-in-out focus-within:ring-1 focus-within:ring-transparent`}>
-                {/* Glowing border effect using CSS variables for gradient */}
-                <div className={`absolute -inset-0.5 bg-gradient-to-r from-[--color-primary] to-[--color-secondary] rounded-lg blur opacity-0 group-focus-within:opacity-75 transition-opacity duration-300`}></div>
+            <div className={`relative group transition-all duration-300 ease-in-out`}>
+                {/* Glowing border effect using pseudo-element */}
+                <div className={`absolute -inset-0.5 bg-gradient-to-r from-[--color-primary] to-[--color-secondary] rounded-md blur opacity-0 group-focus-within:opacity-75 transition-opacity duration-300`}></div>
                 
                 <input
                     id={id}
@@ -37,7 +35,7 @@ export const InputField: React.FC<InputFieldProps> = ({ label, id, value, theme,
                                 `}
                     style={{ 
                         backgroundColor: '#171717', // Enforced dark background color
-                        color: '#E2E8F0', // Ensure text input remains visible
+                        color: '#E0E0E0', // Ensure text input remains visible
                     }}
                 />
             </div>

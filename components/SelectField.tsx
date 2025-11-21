@@ -9,14 +9,15 @@ interface SelectFieldProps extends SelectHTMLAttributes<HTMLSelectElement> {
         secondary: string;
         text: string;
     };
+    srOnlyLabel?: string;
 }
 
-export const SelectField: React.FC<SelectFieldProps> = ({ label, id, options, theme, ...props }) => {
+export const SelectField: React.FC<SelectFieldProps> = ({ label, id, options, theme, srOnlyLabel, ...props }) => {
     const textColor = theme?.text || 'text-gray-200';
 
     return (
         <div className="flex flex-col space-y-1">
-            <label htmlFor={id} className={`text-sm font-inter font-semibold ${textColor}`}>
+            <label htmlFor={id} className={`text-sm font-inter font-semibold ${textColor} ${srOnlyLabel ? 'sr-only' : 'block'}`}>
                 {label}
             </label>
             <div className={`relative group transition-all duration-300 ease-in-out`}>

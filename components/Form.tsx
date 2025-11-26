@@ -6,11 +6,13 @@ import { useToast } from './Toast.tsx';
 import { COMPANY_OPTIONS, STATES_US } from '../constants.ts';
 import { saveSubmissionToQueue } from '../services/queueService.ts';
 
-import { InputField } from './InputField.tsx'; // Will be used for text inputs
-import { SelectField } from './SelectField.tsx'; // Will be used for dropdowns
-import { FileUploadArea } from './FileUploadArea.tsx'; // Will be updated to match visual style
-// import { GeminiAISection } from './GeminiAISection.tsx'; // REMOVED: Not in final visual spec
+// FIX: Importing existing file names
+import { InputField } from './InputField.tsx'; 
+import { SelectField } from './SelectField.tsx'; 
+import { FileUploadArea } from './FileUploadArea.tsx'; 
+import { SectionHeader } from './SectionHeader.tsx'; // Ensure this is imported for section titles
 
+// Note: GeminiAISection import is commented out to match the visual specification
 
 // Initial state structure remains the same
 const initialFormState: Omit<LoadSubmission, 'files' | 'timestamp' | 'submissionId'> = {
@@ -18,12 +20,12 @@ const initialFormState: Omit<LoadSubmission, 'files' | 'timestamp' | 'submission
     driverName: '',
     loadNumber: '',
     bolNumber: '',
-    pickupCity: '',
-    pickupState: '',
-    deliveryCity: '',
+    puCity: '',
+    puState: '',
+    delCity: '',
     delState: '',
     description: '',
-    bolDocType: 'Pick Up' // Keep as default internal state
+    bolDocType: 'Pick Up'
 };
 
 export const Form: React.FC = () => {
@@ -39,7 +41,10 @@ export const Form: React.FC = () => {
     const [bolFiles, setBolFiles] = useState<SelectedFile[]>([]);
     const [freightFiles, setFreightFiles] = useState<SelectedFile[]>([]);
     
+    // Combine files for validation/submission
     const allFiles = useMemo(() => [...bolFiles, ...freightFiles], [bolFiles, freightFiles]);
+
+    // Validation Hook
     const { isValid } = useFormValidation({ ...form, files: allFiles, timestamp: 0, submissionId: '' }, allFiles);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
@@ -75,12 +80,11 @@ export const Form: React.FC = () => {
         };
 
         try {
-            // Note: The logic here remains simulation (save to queue)
             await saveSubmissionToQueue(finalSubmission);
 
             showToast(`Load ${form.loadNumber || 'N/A'} saved to queue! Uploading in background.`, 'success');
 
-            setForm(initialFormState);
+            setForm(initialState);
             setBolFiles([]);
             setFreightFiles([]);
         } catch (error) {
@@ -110,7 +114,7 @@ export const Form: React.FC = () => {
             {/* Company & Driver Section (2 columns) */}
             <div className="grid grid-cols-2 gap-4">
                 <SelectField
-                    label="Company" // Label simplified for visual clarity
+                    label="Company"
                     id="company"
                     value={company}
                     options={COMPANY_OPTIONS}
@@ -130,28 +134,36 @@ export const Form: React.FC = () => {
             </div>
 
             {/* Load Identifiers (2 columns) */}
-            <div className="grid grid-cols-2 gap-4">
-                <InputField label="Load #" id="loadNumber" value={form.loadNumber} onChange={handleChange} placeholder="e.g., 123456" theme={THEME_PROPS} />
-                <InputField label="BOL #" id="bolNumber" value={form.bolNumber} onChange={handleChange} placeholder="e.g., 7891011" theme={THEME_PROPS} />
+            <div className="space-y-4">
+                <SectionHeader title="Load Data" />
+                <div className="grid grid-cols-2 gap-4">
+                    <InputField label="Load #" id="loadNumber" value={form.loadNumber} onChange={handleChange} placeholder="e.g., 123456" theme={THEME_PROPS} />
+                    <InputField label="BOL #" id="bolNumber" value={form.bolNumber} onChange={handleChange} placeholder="e.g., 7891011" theme={THEME_PROPS} />
+                </div>
             </div>
 
             {/* Trip Cities/States (4 columns, stacked 2x2) */}
             <div className="grid grid-cols-2 gap-4">
-                <InputField label="Pickup City/State" id="pickupCity" value={form.puCity} onChange={handleChange} placeholder="City" theme={THEME_PROPS} />
+                <InputField label="Pickup City/State" id="puCity" value={form.puCity} onChange={handleChange} placeholder="City" theme={THEME_PROPS} />
                 <SelectField label="Pickup State" id="puState" value={form.puState} options={STATES_US} onChange={handleChange} placeholder="State" theme={THEME_PROPS} />
             </div>
             <div className="grid grid-cols-2 gap-4">
-                <InputField label="Delivery City/State" id="deliveryCity" value={form.delCity} onChange={handleChange} placeholder="City" theme={THEME_PROPS} />
+                <InputField label="Delivery City/State" id="delCity" value={form.delCity} onChange={handleChange} placeholder="City" theme={THEME_PROPS} />
                 <SelectField label="Delivery State" id="delState" value={form.delState} options={STATES_US} onChange={handleChange} placeholder="State" theme={THEME_PROPS} />
             </div>
 
+            {/* Documents & Freight Section */}
+            <div className="space-y-3 pt-4">
+                <SectionHeader title="Documents & Freight" />
+            </div>
+            
             {/* BOL Photos / PDFs */}
             <div className="space-y-3 pt-4">
                 <div className="flex items-center space-x-4">
                      <h3 className={`text-lg font-bold text-white`}>BOL Photos/PDFs</h3>
                      <SelectField
                         id="bolDocType"
-                        label="BOL Type" // SR-ONLY label; visual label is the h3 above
+                        label="Select Type..." 
                         srOnlyLabel="Select Type"
                         value={form.bolDocType}
                         options={['Pick Up', 'Delivery']}
@@ -169,9 +181,6 @@ export const Form: React.FC = () => {
                 <FileUploadArea files={freightFiles} setFiles={setFreightFiles} fileType="FREIGHT" theme={THEME_PROPS} />
             </div>
             
-            {/* AI Cargo Analysis Section - REMAINS HIDDEN AS PER VISUAL */}
-            {/* Note: If you want to reactivate it, uncomment the GeminiAISection import and place it here */}
-
             {/* SUBMIT BUTTON (Matches image aesthetic) */}
             <button
                 type="submit"

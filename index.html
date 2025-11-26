@@ -1,95 +1,147 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="manifest" href="/metadata.json">
-    <title>QLM Driver Photo Uploader</title>
-    
-    <link rel="stylesheet" href="/src/style.css">
-    
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Inter:wght@400;600&display=swap" rel="stylesheet">
- <style>
-  body {
-    font-family: 'Inter', sans-serif;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-    background-color: #000;
-    overflow-x: hidden;
-  }
-  
-  /* --- Animated Grid Background --- */
-  body::before {
-    content: '';
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-image: 
-      linear-gradient(to right, rgba(0, 255, 255, 0.1) 1px, transparent 1px),
-      linear-gradient(to bottom, rgba(0, 255, 255, 0.1) 1px, transparent 1px);
-    background-size: 40px 40px;
-    animation: grid-scroll 30s linear infinite;
-    z-index: 0;
-    opacity: 0.5;
-  }
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>QLM Driver Uploader</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+      :root {
+        --glow-color-cyan: rgba(0, 255, 255, 0.7);
+      }
 
-  .font-orbitron {
-    font-family: 'Orbitron', sans-serif;
-  }
-  
-  /* --- Text Glow Utilities --- */
-  .glowing-text-cyan { text-shadow: 0 0 3px rgba(0, 255, 255, 0.8), 0 0 8px rgba(0, 255, 255, 0.6), 0 0 15px rgba(0, 255, 255, 0.4); }
-  .glowing-text-green { text-shadow: 0 0 3px rgba(74, 222, 128, 0.8), 0 0 8px rgba(74, 222, 128, 0.6), 0 0 15px rgba(74, 222, 128, 0.4); }
-  .glowing-text-sky { text-shadow: 0 0 3px rgba(56, 189, 248, 0.8), 0 0 8px rgba(56, 189, 248, 0.6), 0 0 15px rgba(56, 189, 248, 0.4); }
+      body {
+        font-family: 'Inter', sans-serif;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+        background-color: #000;
+        color: #E0E0E0;
+        overflow-x: hidden;
+      }
+      
+      body::before {
+        content: '';
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-image: 
+          linear-gradient(to right, rgba(0, 255, 255, 0.1) 1px, transparent 1px),
+          linear-gradient(to bottom, rgba(0, 255, 255, 0.1) 1px, transparent 1px);
+        background-size: 40px 40px;
+        animation: grid-scroll 30s linear infinite;
+        z-index: -1;
+        opacity: 0.5;
+      }
 
-  /* --- Form Glow Utilities --- */
-  .form-glow-cyan::before { box-shadow: 0 0 15px rgba(0, 255, 255, 0.3), 0 0 30px rgba(0, 255, 255, 0.2); }
-  .form-glow-green::before { box-shadow: 0 0 15px rgba(74, 222, 128, 0.3), 0 0 30px rgba(74, 222, 128, 0.2); }
-  .form-glow-sky::before { box-shadow: 0 0 15px rgba(56, 189, 248, 0.3), 0 0 30px rgba(56, 189, 248, 0.2); }
-  
-  .form-container {
-    position: relative;
-    z-index: 10;
-  }
-  .form-container::before {
-    content: '';
-    position: absolute;
-    inset: -2px;
-    border-radius: 0.75rem;
-    z-index: -1;
-    transition: box-shadow 0.3s ease-in-out;
-  }
-  
-  /* --- Keyframe Animations --- */
-  @keyframes grid-scroll {
-    from { background-position: 0 0; }
-    to { background-position: -120px -120px; }
-  }
-  
-  @keyframes pulse {
-    50% {
-      opacity: 0.85;
-      transform: scale(1.01);
-    }
-  }
+      .font-orbitron {
+        font-family: 'Orbitron', sans-serif;
+      }
+      
+      .glowing-text-cyan {
+        text-shadow: 0 0 5px var(--glow-color-cyan), 0 0 10px var(--glow-color-cyan), 0 0 20px rgba(0, 255, 255, 0.5);
+      }
+      .glowing-border-cyan {
+        box-shadow: 0 0 2px 1px rgba(0, 255, 255, 0.3), inset 0 0 2px 1px rgba(0, 255, 255, 0.3);
+      }
+      
+      @keyframes grid-scroll {
+        from { background-position: 0 0; }
+        to { background-position: -120px -120px; }
+      }
+      
+      /* Custom Radio Buttons */
+      .radio-group input[type="radio"] {
+        opacity: 0;
+        position: fixed;
+        width: 0;
+      }
+      .radio-group label {
+          display: inline-flex;
+          align-items: center;
+          cursor: pointer;
+          transition: color 0.3s ease;
+          color: #A0A0A0;
+      }
+      .radio-group input[type="radio"]:checked + label {
+        color: #FFFFFF;
+      }
+      .radio-group label::before {
+          content: '';
+          width: 1em;
+          height: 1em;
+          border-radius: 50%;
+          border: 2px solid #6b7280;
+          margin-right: 0.5em;
+          background-color: transparent;
+          transition: all 0.2s ease;
+      }
+      .radio-group input[type="radio"]:checked + label::before {
+          background-color: #00BFFF; /* DeepSkyBlue */
+          border-color: #00BFFF;
+          box-shadow: 0 0 5px #00BFFF;
+      }
+       .radio-group input[type="radio"]:focus-visible + label::before {
+        outline: 2px solid #38bdf8;
+        outline-offset: 2px;
+      }
 
-  .animate-pulse-glow {
-    animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-  }</style>
-    <script type="importmap">
-        {
-            "imports": {
-                "react": "https://esm.sh/react@18.3.1",
-                "react-dom/client": "https://esm.sh/react-dom@18.3.1/client",
-                "tailwind-merge": "https://esm.sh/tailwind-merge@2.2.1"
-            }
-        }
-    </script>
+      /* Terminal-style Inputs */
+      .terminal-input-container {
+        position: relative;
+        background-color: #1a1a1a;
+        border-top: 2px solid #FFF;
+      }
+      .terminal-input-label {
+        position: absolute;
+        top: -1px;
+        left: 8px;
+        transform: translateY(-100%);
+        background-color: #FFF;
+        color: #000;
+        padding: 0 6px;
+        font-size: 0.8rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        white-space: nowrap;
+      }
+      .terminal-input {
+        width: 100%;
+        background-color: transparent;
+        border: none;
+        padding: 10px 12px;
+        color: #E0E0E0;
+        font-size: 1rem;
+      }
+      .terminal-input:focus {
+        outline: none;
+        box-shadow: inset 0 0 8px rgba(0, 255, 255, 0.4);
+      }
+      .terminal-input::placeholder {
+        color: #666;
+      }
+
+    </style>
+  <script type="importmap">
+{
+  "imports": {
+    "@google/genai": "https://aistudiocdn.com/@google/genai@^1.29.0",
+    "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.0/",
+    "react/": "https://aistudiocdn.com/react@^19.2.0/",
+    "react": "https://aistudiocdn.com/react@^19.2.0",
+    "idb": "https://aistudiocdn.com/idb@^8.0.0"
+  }
+}
+</script>
 </head>
-<body>
+  <body>
+    <noscript>You need to enable JavaScript to run this app.</noscript>
     <div id="root"></div>
     <script type="module" src="/index.tsx"></script>
-</body>
+  </body>
 </html>

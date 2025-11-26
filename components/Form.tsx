@@ -6,16 +6,15 @@ import { useToast } from './Toast.tsx';
 import { COMPANY_OPTIONS, STATES_US } from '../constants.ts';
 import { saveSubmissionToQueue } from '../services/queueService.ts';
 
-// FIX: Importing existing file names
+// FIX: Importing existing file names with explicit extensions
 import { InputField } from './InputField.tsx'; 
 import { SelectField } from './SelectField.tsx'; 
 import { FileUploadArea } from './FileUploadArea.tsx'; 
-import { SectionHeader } from './SectionHeader.tsx'; // Ensure this is imported for section titles
+import { SectionHeader } from './SectionHeader.tsx'; 
 
-// Note: GeminiAISection import is commented out to match the visual specification
 
 // Initial state structure remains the same
-const initialFormState: Omit<LoadSubmission, 'files' | 'timestamp' | 'submissionId'> = {
+const initialState: Omit<LoadSubmission, 'files' | 'timestamp' | 'submissionId'> = {
     company: 'default',
     driverName: '',
     loadNumber: '',
@@ -35,7 +34,7 @@ export const Form: React.FC = () => {
     
     // Form and File State
     const [form, setForm] = useState<Omit<LoadSubmission, 'files' | 'timestamp' | 'submissionId'>>({
-        ...initialFormState,
+        ...initialState,
         company: company,
     });
     const [bolFiles, setBolFiles] = useState<SelectedFile[]>([]);
@@ -59,6 +58,52 @@ export const Form: React.FC = () => {
             [id]: value,
         }));
     };
+
+    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>, fileType: 'bol' | 'freight') => {
+        if (!e.target.files) return;
+        
+        const filesArray = Array.from(e.target.files).map(file => ({
+            id: crypto.randomUUID(),
+            file,
+            type: file.type.startsWith('image/') ? 'image' : file.type.startsWith('video/') ? 'video' : 'document',
+            name: file.name,
+            size: file.size,
+        }));
+
+        if (fileType === 'bol') {
+            setBolFiles(prev => [...prev, ...filesArray]);
+        } else {
+            setFreightFiles(prev => [...prev, ...filesArray]);
+        }
+        
+        // Clear input value to allow selecting the same file again
+        e.target.value = '';
+    };
+
+    const handleRemoveFile = (fileId: string, fileType: 'bol' | 'freight') => {
+        if (fileType === 'bol') {
+            setBolFiles(prev => prev.filter(f => f.id !== fileId));
+        } else {
+            setFreightFiles(prev => prev.filter(f => f.id !== fileId));
+        }
+    };
+    
+    const handleFileReorder = (draggedId: string, targetId: string, fileType: 'bol' | 'freight') => {
+        const currentFiles = fileType === 'bol' ? bolFiles : freightFiles;
+        const setFiles = fileType === 'bol' ? setBolFiles : setFreightFiles;
+
+        const draggedIndex = currentFiles.findIndex(f => f.id === draggedId);
+        const targetIndex = currentFiles.findIndex(f => f.id === targetId);
+        
+        if (draggedIndex === -1 || targetIndex === -1) return;
+
+        const newFiles = Array.from(currentFiles);
+        const [removed] = newFiles.splice(draggedIndex, 1);
+        newFiles.splice(targetIndex, 0, removed);
+
+        setFiles(newFiles);
+    };
+
 
     const handleSubmit = useCallback(async (e: React.FormEvent) => {
         e.preventDefault();
@@ -84,7 +129,7 @@ export const Form: React.FC = () => {
 
             showToast(`Load ${form.loadNumber || 'N/A'} saved to queue! Uploading in background.`, 'success');
 
-            setForm(initialState);
+            setForm({...initialState, company: company}); // Reset form, keeping company selection
             setBolFiles([]);
             setFreightFiles([]);
         } catch (error) {
@@ -122,7 +167,7 @@ export const Form: React.FC = () => {
                     required
                     theme={THEME_PROPS}
                 />
-                <InputField
+                <InputField // FIX: Using InputField
                     label="Driver's Name"
                     id="driverName"
                     value={form.driverName}
@@ -172,13 +217,27 @@ export const Form: React.FC = () => {
                     />
                 </div>
                 
-                <FileUploadArea files={bolFiles} setFiles={setBolFiles} fileType="BOL" theme={THEME_PROPS} />
+                <FileUploadArea 
+                    id="bolFiles" 
+                    files={bolFiles} 
+                    onFileChange={(e) => handleFileChange(e, 'bol')}
+                    onRemoveFile={handleRemoveFile} 
+                    onFileReorder={handleFileReorder}
+                    accept="image/*,application/pdf"
+                />
             </div>
 
             {/* Freight Photos / Videos */}
             <div className="space-y-3 pt-4">
                 <h3 className={`text-lg font-bold text-white`}>Freight Photos/Videos</h3>
-                <FileUploadArea files={freightFiles} setFiles={setFreightFiles} fileType="FREIGHT" theme={THEME_PROPS} />
+                <FileUploadArea 
+                    id="freightFiles" 
+                    files={freightFiles} 
+                    onFileChange={(e) => handleFileChange(e, 'freight')}
+                    onRemoveFile={handleRemoveFile} 
+                    onFileReorder={handleFileReorder}
+                    accept="image/*,video/*"
+                />
             </div>
             
             {/* SUBMIT BUTTON (Matches image aesthetic) */}
@@ -193,7 +252,7 @@ export const Form: React.FC = () => {
                 `}
                 style={isValid ? { boxShadow: `var(--shadow-glow)` } : {}}
             >
-                {status === 'submitting' ? 'INITIATING UPLOAD...' : `Complete Required Fields`}
+                {status === 'submitting' ? 'INITIATING UPLOAD...' : `SUBMIT LOAD DATA`}
             </button>
         </form>
     );

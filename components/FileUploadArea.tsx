@@ -1,8 +1,9 @@
 import React, { useRef } from 'react';
 import type { UploadedFile } from '../types.ts';
 import { FileThumbnail } from './FileThumbnail.tsx';
-import { CameraIcon } from './icons/CameraIcon.tsx'; 
-import { FolderIcon } from './icons/FolderIcon.tsx'; 
+import { CameraIcon } from './icons/CameraIcon'; // FINAL FIX: Removed .tsx extension
+import { FolderIcon } from './icons/FolderIcon'; // FINAL FIX: Removed .tsx extension
+// Note: Ensure all components used below (e.g., FileThumbnail) also have the explicit .tsx extension in their imports.
 
 interface FileUploadAreaProps {
   id: 'bolFiles' | 'freightFiles';

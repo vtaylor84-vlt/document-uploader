@@ -6,7 +6,7 @@ import { useToast } from './Toast.tsx';
 import { COMPANY_OPTIONS, STATES_US } from '../constants.ts';
 import { saveSubmissionToQueue } from '../services/queueService.ts';
 
-// FIX: Importing existing file names with explicit extensions
+// FIX: Importing existing file names
 import { InputField } from './InputField.tsx'; 
 import { SelectField } from './SelectField.tsx'; 
 import { FileUploadArea } from './FileUploadArea.tsx'; 
@@ -14,7 +14,7 @@ import { SectionHeader } from './SectionHeader.tsx';
 
 
 // Initial state structure remains the same
-const initialState: Omit<LoadSubmission, 'files' | 'timestamp' | 'submissionId'> = {
+const initialFormState: Omit<LoadSubmission, 'files' | 'timestamp' | 'submissionId'> = {
     company: 'default',
     driverName: '',
     loadNumber: '',
@@ -34,7 +34,7 @@ export const Form: React.FC = () => {
     
     // Form and File State
     const [form, setForm] = useState<Omit<LoadSubmission, 'files' | 'timestamp' | 'submissionId'>>({
-        ...initialState,
+        ...initialFormState,
         company: company,
     });
     const [bolFiles, setBolFiles] = useState<SelectedFile[]>([]);
@@ -58,52 +58,6 @@ export const Form: React.FC = () => {
             [id]: value,
         }));
     };
-
-    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>, fileType: 'bol' | 'freight') => {
-        if (!e.target.files) return;
-        
-        const filesArray = Array.from(e.target.files).map(file => ({
-            id: crypto.randomUUID(),
-            file,
-            type: file.type.startsWith('image/') ? 'image' : file.type.startsWith('video/') ? 'video' : 'document',
-            name: file.name,
-            size: file.size,
-        }));
-
-        if (fileType === 'bol') {
-            setBolFiles(prev => [...prev, ...filesArray]);
-        } else {
-            setFreightFiles(prev => [...prev, ...filesArray]);
-        }
-        
-        // Clear input value to allow selecting the same file again
-        e.target.value = '';
-    };
-
-    const handleRemoveFile = (fileId: string, fileType: 'bol' | 'freight') => {
-        if (fileType === 'bol') {
-            setBolFiles(prev => prev.filter(f => f.id !== fileId));
-        } else {
-            setFreightFiles(prev => prev.filter(f => f.id !== fileId));
-        }
-    };
-    
-    const handleFileReorder = (draggedId: string, targetId: string, fileType: 'bol' | 'freight') => {
-        const currentFiles = fileType === 'bol' ? bolFiles : freightFiles;
-        const setFiles = fileType === 'bol' ? setBolFiles : setFreightFiles;
-
-        const draggedIndex = currentFiles.findIndex(f => f.id === draggedId);
-        const targetIndex = currentFiles.findIndex(f => f.id === targetId);
-        
-        if (draggedIndex === -1 || targetIndex === -1) return;
-
-        const newFiles = Array.from(currentFiles);
-        const [removed] = newFiles.splice(draggedIndex, 1);
-        newFiles.splice(targetIndex, 0, removed);
-
-        setFiles(newFiles);
-    };
-
 
     const handleSubmit = useCallback(async (e: React.FormEvent) => {
         e.preventDefault();
@@ -147,7 +101,8 @@ export const Form: React.FC = () => {
                          'form-glow-cyan';
 
     const isPulsing = isValid && status !== 'submitting';
-    const THEME_PROPS = { primary: currentTheme.palette.primary, secondary: currentTheme.palette.secondary, text: currentTheme.glowingText };
+    const getLoadIdentifier = () => form.loadNumber || form.bolNumber || `Trip--`;
+
 
     return (
         // Main Form Container: Glassmorphism and Dynamic Glow
@@ -162,19 +117,17 @@ export const Form: React.FC = () => {
                     label="Company"
                     id="company"
                     value={company}
-                    options={COMPANY_OPTIONS}
+                    options={COMPANIES}
                     onChange={handleChange}
                     required
-                    theme={THEME_PROPS}
                 />
-                <InputField // FIX: Using InputField
+                <InputField
                     label="Driver's Name"
                     id="driverName"
                     value={form.driverName}
                     onChange={handleChange}
                     required
                     placeholder="e.g., John Doe"
-                    theme={THEME_PROPS}
                 />
             </div>
 
@@ -182,19 +135,19 @@ export const Form: React.FC = () => {
             <div className="space-y-4">
                 <SectionHeader title="Load Data" />
                 <div className="grid grid-cols-2 gap-4">
-                    <InputField label="Load #" id="loadNumber" value={form.loadNumber} onChange={handleChange} placeholder="e.g., 123456" theme={THEME_PROPS} />
-                    <InputField label="BOL #" id="bolNumber" value={form.bolNumber} onChange={handleChange} placeholder="e.g., 7891011" theme={THEME_PROPS} />
+                    <InputField label="Load #" id="loadNumber" value={form.loadNumber} onChange={handleChange} placeholder="e.g., 123456" />
+                    <InputField label="BOL #" id="bolNumber" value={form.bolNumber} onChange={handleChange} placeholder="e.g., 7891011" />
                 </div>
             </div>
 
             {/* Trip Cities/States (4 columns, stacked 2x2) */}
             <div className="grid grid-cols-2 gap-4">
-                <InputField label="Pickup City/State" id="puCity" value={form.puCity} onChange={handleChange} placeholder="City" theme={THEME_PROPS} />
-                <SelectField label="Pickup State" id="puState" value={form.puState} options={STATES_US} onChange={handleChange} placeholder="State" theme={THEME_PROPS} />
+                <InputField label="Pickup City/State" id="puCity" value={form.puCity} onChange={handleChange} placeholder="City" />
+                <SelectField label="Pickup State" id="puState" value={form.puState} options={US_STATES} onChange={handleChange} placeholder="State" />
             </div>
             <div className="grid grid-cols-2 gap-4">
-                <InputField label="Delivery City/State" id="delCity" value={form.delCity} onChange={handleChange} placeholder="City" theme={THEME_PROPS} />
-                <SelectField label="Delivery State" id="delState" value={form.delState} options={STATES_US} onChange={handleChange} placeholder="State" theme={THEME_PROPS} />
+                <InputField label="Delivery City/State" id="delCity" value={form.delCity} onChange={handleChange} placeholder="City" />
+                <SelectField label="Delivery State" id="delState" value={form.delState} options={US_STATES} onChange={handleChange} placeholder="State" />
             </div>
 
             {/* Documents & Freight Section */}
@@ -213,7 +166,6 @@ export const Form: React.FC = () => {
                         value={form.bolDocType}
                         options={['Pick Up', 'Delivery']}
                         onChange={handleChange}
-                        theme={THEME_PROPS}
                     />
                 </div>
                 
@@ -252,7 +204,7 @@ export const Form: React.FC = () => {
                 `}
                 style={isValid ? { boxShadow: `var(--shadow-glow)` } : {}}
             >
-                {status === 'submitting' ? 'INITIATING UPLOAD...' : `SUBMIT LOAD DATA`}
+                {status === 'submitting' ? 'INITIATING UPLOAD...' : `SUBMIT DOCUMENTS FOR LOAD: ${getLoadIdentifier()}`}
             </button>
         </form>
     );

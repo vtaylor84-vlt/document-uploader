@@ -1,40 +1,87 @@
-import React from 'react';
-import type { Status } from '../types';
-import { SparkleIcon } from './icons/SparkleIcon';
+// components/GeminiAISection.tsx
+import React, { useState } from 'react';
+import { FileData, Theme } from '../types.ts';
+import { generateCargoDescription } from '../services/geminiService.ts';
+import { useToasts } from '../hooks/useToasts.ts';
+import { FormField } from './FormField.tsx'; // Assuming this is now InputField.tsx/SelectField.tsx
 
 interface GeminiAISectionProps {
-    onGenerate: () => void;
-    description: string;
-    handleInputChange: (e: React.ChangeEvent<HTMLTextAreaElement>) => void;
-    status: Status;
+  freightFiles: FileData[];
+  description: string;
+  setDescription: (desc: string) => void;
+  theme: Theme;
 }
 
-export const GeminiAISection: React.FC<GeminiAISectionProps> = ({ onGenerate, description, handleInputChange, status }) => {
-    return (
-        <div className="space-y-3">
-            <div className="flex items-center justify-between">
-                 <h3 className="font-orbitron font-bold text-lg">AI Cargo Analysis</h3>
-                <button
-                    type="button"
-                    onClick={onGenerate}
-                    disabled={status === 'loading'}
-                    className="flex items-center space-x-2 px-3 py-1 text-sm font-semibold text-black bg-yellow-400 hover:bg-yellow-300 rounded-sm transition-all disabled:bg-gray-600 disabled:text-gray-400 disabled:cursor-wait"
-                >
-                    <SparkleIcon className="w-4 h-4" />
-                    <span>{status === 'loading' ? 'Analyzing...' : 'Generate AI Description (Gemini)'}</span>
-                </button>
-            </div>
-            <div className="terminal-input-container">
-                <textarea
-                    id="description"
-                    name="description"
-                    rows={4}
-                    value={description}
-                    onChange={handleInputChange}
-                    placeholder={status === 'loading' ? 'AI is generating content...' : 'AI-generated or manual cargo description for BOL...'}
-                    className="terminal-input"
-                />
-            </div>
-        </div>
-    );
+export const GeminiAISection: React.FC<GeminiAISectionProps> = ({
+  freightFiles,
+  description,
+  setDescription,
+  theme,
+}) => {
+  const [isLoading, setIsLoading] = useState(false);
+  const { addToast } = useToasts();
+
+  const handleGenerateDescription = async () => {
+    if (freightFiles.length === 0) {
+      addToast('warning', 'Please attach freight photos/videos first.');
+      return;
+    }
+
+    setIsLoading(true);
+    setDescription('Generating AI description...');
+    try {
+      const result = await generateCargoDescription(freightFiles);
+      setDescription(result);
+      addToast('success', 'AI description generated successfully.');
+    } catch (error) {
+      console.error('Gemini AI Error:', error);
+      setDescription(`AI generation failed: ${(error as Error).message}`);
+      addToast('error', 'Failed to generate AI description.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+  
+  // Custom Tailwind style for the button glow
+  const focusStyle = {
+    boxShadow: `0 0 0 2px ${theme.glowColor}, 0 0 10px ${theme.glowColor}`,
+  };
+
+  return (
+    <div className="mb-6 p-4 rounded-xl bg-gray-900 border-2 border-gray-700">
+      <h3 className={`text-xl font-orbitron mb-3 ${theme.primaryColor}`}>AI Cargo Analysis</h3>
+      
+      <button
+        type="button"
+        onClick={handleGenerateDescription}
+        disabled={isLoading}
+        className={`w-full p-3 rounded-lg text-white font-bold transition duration-300 border-2 border-gray-700 ${theme.accentColor} mb-4 ${isLoading ? 'opacity-60 cursor-not-allowed' : 'hover:opacity-90'}`}
+        style={isLoading ? {} : { boxShadow: `0 0 8px ${theme.glowColor}` }}
+        onFocus={(e) => {
+            if (!isLoading) e.currentTarget.style.boxShadow = focusStyle.boxShadow;
+        }}
+        onBlur={(e) => {
+            if (!isLoading) e.currentTarget.style.boxShadow = `0 0 8px ${theme.glowColor}`;
+        }}
+      >
+        {isLoading ? '🧠 Analyzing Cargo...' : '✨ Generate Description (Gemini AI)'}
+      </button>
+
+      {/* Note: This component assumes a FormField that supports a textarea type */}
+      <textarea
+        id="description"
+        name="description"
+        rows={4}
+        value={description}
+        onChange={(e) => setDescription(e.target.value)}
+        placeholder={isLoading ? 'AI is generating content...' : 'AI-generated or manual cargo description for BOL...'}
+        className={`w-full p-3 bg-gray-800 border-2 border-gray-700 rounded-lg text-white transition duration-300`}
+        style={{
+            boxShadow: isLoading ? `0 0 0 2px ${theme.glowColor}` : 'none',
+            minHeight: '100px'
+        }}
+        disabled={isLoading}
+      />
+    </div>
+  );
 };

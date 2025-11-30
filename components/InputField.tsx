@@ -19,7 +19,7 @@ export const InputField: React.FC<InputFieldProps> = ({ label, id, value, theme,
             <label htmlFor={id} className={`text-sm font-inter font-semibold ${textColor}`}>
                 {label}
             </label>
-            <div className={`relative group transition-all duration-300 ease-in-out`}>
+            <div className={`relative group transition-all duration-300 ease-in-out focus-within:ring-1 focus-within:ring-transparent`}>
                 {/* Glowing border effect using pseudo-element */}
                 <div className={`absolute -inset-0.5 bg-gradient-to-r from-[--color-primary] to-[--color-secondary] rounded-md blur opacity-0 group-focus-within:opacity-75 transition-opacity duration-300`}></div>
                 
